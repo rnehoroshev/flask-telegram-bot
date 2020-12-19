@@ -1,0 +1,20 @@
+[tool.pylint.FORMAT]
+max-line-length = 99
+
+[tool.pylint.MASTER]
+load-plugins = 'pylintplugins'
+
+[tool.pylint.LOGGING]
+logging-format-style = 'old'
+
+[tool.black]
+target-version = ['py38']
+line-length = 99
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.venv
+)/
+'''

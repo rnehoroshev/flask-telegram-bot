@@ -1,0 +1,12 @@
+alembic
+click
+Flask
+Flask-Mail
+Flask-Migrate
+Flask-SQLAlchemy
+python-dateutil
+python-dotenv
+redis
+rq
+requests
+SQLAlchemy
