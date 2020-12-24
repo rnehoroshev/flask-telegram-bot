@@ -23,6 +23,7 @@ from flask.ctx import AppContext
 from app import create_app, db
 from common import EInvalidEmailAddress, email_list
 from config import Config
+from telegram_bot import BotDispatcher
 
 
 class TestConfig(Config):  # pylint: disable=too-few-public-methods
@@ -32,8 +33,8 @@ class TestConfig(Config):  # pylint: disable=too-few-public-methods
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 
-class EmailAddressParserCase(unittest.TestCase):
-    """Email address parser test case"""
+class FlaskTelegramBotAppTestCase(unittest.TestCase):
+    """Base class for common test cases"""
 
     def shortDescription(self):
         """Disable test docstring output"""
@@ -51,6 +52,10 @@ class EmailAddressParserCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+
+
+class EmailAddressParserCase(FlaskTelegramBotAppTestCase):
+    """Email address parser test case"""
 
     def test_email_list_raises_typeerror(self):
         """Test that email_list() will raise TypeError when passing an invalid argument"""
@@ -126,6 +131,22 @@ class EmailAddressParserCase(unittest.TestCase):
         self.assertEqual(emails[2][1], "jim-doe@example.com")
         self.assertEqual(emails[3][0], "Jared Doe")
         self.assertEqual(emails[3][1], "jared_doe@example.com")
+
+
+class BotDispatcherCase(FlaskTelegramBotAppTestCase):
+    """Bot dispatcher test case"""
+
+    def test_app_dispatcher_token(self):
+        """Test that flask app instance has a valid dispatcher attribute
+        with the configured bot token"""
+        self.assertIsInstance(self.app.bot_dispatcher, BotDispatcher)
+        self.assertEqual(self.app.bot_dispatcher.token, self.app.config["BOT_TOKEN"])
+
+    def test_simple_api_request(self):
+        """Test sending a simple API request and receiving a valid response"""
+        response = self.app.bot_dispatcher.invoke_request("getMe")
+        self.assertIsInstance(response, dict)
+        self.assertIn("ok", response)
 
 
 if __name__ == "__main__":

@@ -30,12 +30,14 @@ from redis import Redis
 from common.db import db, migrate
 from common.logging import RelativePathsFormatter
 from config import DEFAULT_LOG_FORMAT, Config, basedir
+from telegram_bot import BotDispatcher
 
 from . import cli
+from .bot_app import BotApp
 from .exceptions import ENoBotConfigured
 
 
-def create_app(config_class: Type = Config) -> Flask:
+def create_app(config_class: Type = Config) -> BotApp:
     """Main application factory"""
 
     # Setup default Flask logger (before read config)
@@ -44,7 +46,7 @@ def create_app(config_class: Type = Config) -> Flask:
     )
 
     # Create application instance and read config
-    app = Flask(__name__)
+    app = BotApp(__name__)
     app.config.from_object(config_class)
 
     # Configure advanced logging (after read config)
@@ -68,8 +70,10 @@ def create_app(config_class: Type = Config) -> Flask:
     ):
         app.logger.info("Debug logging enabled")
 
+    # Instantiate the bot dispatcher object
     if not app.testing and not app.config["BOT_TOKEN"] and not app.config["BOT_USER_ID"]:
         raise ENoBotConfigured("No BOT_TOKEN or BOT_USER_ID found in configuration")
+    app.bot_dispatcher = BotDispatcher.get(app.config["BOT_TOKEN"])
 
     # Attach Flask extensions
     db.init_app(app)
@@ -133,9 +137,9 @@ def enable_email_logging(app: Flask) -> None:
         app.logger.addHandler(mail_handler)
 
 
-def register_shell_context(app: Flask) -> None:
+def register_shell_context(app: BotApp) -> None:
     """Register app shell context"""
 
     @app.shell_context_processor
     def make_shell_context():  # pylint: disable=unused-variable
-        return {"db": db}
+        return {"app": app, "db": db, "bot": app.bot_dispatcher}
