@@ -19,6 +19,8 @@
 from typing import Optional
 
 from flask import Flask
+from redis import Redis
+from rq import Queue
 
 from telegram_bot import BotDispatcher
 
@@ -30,4 +32,6 @@ class BotApp(Flask):
         super().__init__(*args, **kwargs)
 
         # Application-specific fields and methods
-        self.bot_dispatcher = None  # type: Optional[BotDispatcher]
+        self.bot_dispatcher: Optional[BotDispatcher] = None
+        self.redis: Optional[Redis] = None
+        self.task_queue: Optional[Queue] = None
