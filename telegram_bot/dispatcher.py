@@ -38,12 +38,20 @@ class BotDispatcher:
 
     def __init__(self, token: str):
         self.token = token
-        try:
-            self.user_id = int(token.split(":")[0])
-        except Exception as exc:
-            raise EInvalidBotToken("Invalid bot token", token) from exc
         self.update_handlers: List = []
         BotDispatcher._bots[token] = self
+
+    @property
+    def token(self) -> str:
+        return self._token
+
+    @token.setter
+    def token(self, value: str) -> None:
+        try:
+            self.user_id = int(value.split(":")[0])
+        except Exception as exc:
+            raise EInvalidBotToken("Invalid bot token", value) from exc
+        self._token = value
 
     def endpoint(self, method: str) -> str:
         """Returns a fully constructed endpoint for a given method with current bot's token"""
