@@ -17,5 +17,6 @@
 # limitations under the License.
 """Common and helper routines"""
 from .email_utils import EInvalidEmailAddress, EmailAddress, email_list
+from .path_utils import PathUtils
 
-__all__ = ["EInvalidEmailAddress", "EmailAddress", "email_list"]
+__all__ = ["EInvalidEmailAddress", "EmailAddress", "email_list", "PathUtils"]
