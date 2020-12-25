@@ -42,6 +42,7 @@ class Config:  # pylint: disable=too-few-public-methods
 
     LOG_LEVEL = os.environ.get("BOT_LOG_LEVEL")
     LOG_TO_STDOUT = os.environ.get("BOT_LOG_TO_STDOUT") == "1"
+    LOG_FILE_DIR = os.environ.get("BOT_LOG_FILE_DIR")
 
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = int(os.environ.get("MAIL_PORT") or 25)

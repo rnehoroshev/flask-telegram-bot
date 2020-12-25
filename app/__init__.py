@@ -19,14 +19,16 @@
 import logging
 import os
 import sys
-from logging.handlers import SMTPHandler
-from typing import Type, Union
+from logging.handlers import RotatingFileHandler, SMTPHandler
+from pathlib import Path
+from typing import Optional, Type, Union
 
 import rq
 from flask import Flask
 from flask import logging as flask_logging
 from redis import Redis
 
+from common import PathUtils
 from common.db import db, migrate
 from common.logging import RelativePathsFormatter
 from config import DEFAULT_LOG_FORMAT, Config, basedir
@@ -58,6 +60,13 @@ def create_app(config_class: Type = Config) -> BotApp:
             enable_stdout_logging(app)
 
     enable_email_logging(app)
+
+    # Enable file logging if configured
+    log_dir = app.config["LOG_FILE_DIR"]
+    if log_dir and PathUtils.is_path_exists_or_creatable(log_dir):
+        enable_file_logging(
+            app, log_dir, log_level=logging.getLevelName(app.config.get("LOG_LEVEL", None))
+        )
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
@@ -102,7 +111,7 @@ def create_app(config_class: Type = Config) -> BotApp:
     return app
 
 
-def enable_stdout_logging(app: Flask, log_level: Union[str, int] = None) -> None:
+def enable_stdout_logging(app: Flask, log_level: Optional[Union[str, int]] = None) -> None:
     """Enables logging to stdout with specified log level"""
     stream_handler = logging.StreamHandler(stream=sys.stdout)
     stream_handler.setLevel(
@@ -135,6 +144,24 @@ def enable_email_logging(app: Flask) -> None:
         )
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
+
+
+def enable_file_logging(
+    app: Flask, log_dir: str, log_level: Optional[Union[int, str]] = None
+) -> None:
+    """Enables logging to file(s) with specified log level"""
+    if not os.path.exists(log_dir):
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+    file_handler = RotatingFileHandler(
+        os.path.join(log_dir, "bot.log"), maxBytes=10485760, backupCount=10
+    )
+    file_handler.setFormatter(
+        RelativePathsFormatter(DEFAULT_LOG_FORMAT, paths_relative_to=basedir)
+    )
+    file_handler.setLevel(
+        log_level or logging.getLevelName(app.config["LOG_LEVEL"]) or logging.INFO
+    )
+    app.logger.addHandler(file_handler)
 
 
 def register_shell_context(app: BotApp) -> None:
