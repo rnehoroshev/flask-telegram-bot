@@ -17,6 +17,7 @@
 # limitations under the License.
 """Bot web application endpoints"""
 import json
+import os
 from typing import TYPE_CHECKING, Optional
 
 from flask import Response, current_app, jsonify, request
@@ -80,6 +81,15 @@ def register_routes(blueprint: "TelegramBotBlueprint"):
                 current_app.logger.debug(
                     f"Incoming update ID={update_id}, payload={json_payload.decode()}",
                 )
+                if current_app.config["DUMP_UPDATES"]:
+                    json_payload_pp = json.dumps(
+                        request.json, ensure_ascii=False, indent=4
+                    ).encode("utf8")
+                    filename = os.path.join(
+                        current_app.config["UPDATES_DUMP_DIR"], f"{update_id}.json"
+                    )
+                    with open(filename, "w", encoding="utf8") as update_file:
+                        update_file.write(json_payload_pp.decode())
                 blueprint.bot_dispatcher.process_update(request.json)
             except Exception as exc:  # pylint: disable=broad-except
                 current_app.logger.exception(

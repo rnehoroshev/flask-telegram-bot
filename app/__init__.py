@@ -79,6 +79,19 @@ def create_app(config_class: Type = Config) -> BotApp:
     ):
         app.logger.info("Debug logging enabled")
 
+    # Prepare updates dump dir if required
+    dump_updates = bool(app.config.get("DUMP_UPDATES", False))
+    updates_dump_dir = app.config.get("UPDATES_DUMP_DIR", None)
+    if dump_updates:
+        if PathUtils.is_path_exists_or_creatable(updates_dump_dir):
+            Path(updates_dump_dir).mkdir(parents=True, exist_ok=True)
+        else:
+            app.logger.warn(
+                f"Unable to create path {updates_dump_dir}. Update dumps will not be saved"
+            )
+            dump_updates = False
+    app.config["DUMP_UPDATES"] = dump_updates
+
     # Instantiate the bot dispatcher object
     if not app.testing and not app.config["BOT_TOKEN"] and not app.config["BOT_USER_ID"]:
         raise ENoBotConfigured("No BOT_TOKEN or BOT_USER_ID found in configuration")
