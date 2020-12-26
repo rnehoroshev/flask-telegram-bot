@@ -28,8 +28,8 @@ from .helpers import default_ok_response, error_response
 def register_routes(blueprint):
     """Register routes within the blueprint"""
 
-    @blueprint.route("/receive_update/<token>", methods=["GET", "POST"])
-    def receive_update(token: str) -> Response:  # pylint: disable=unused-variable
+    @blueprint.route("/receive_update", methods=["GET", "POST"])
+    def receive_update() -> Response:  # pylint: disable=unused-variable
         """Incoming update handler
 
         This endpoint should be registered with Telegram Bot API's 'setWebhook' method.
@@ -41,8 +41,6 @@ def register_routes(blueprint):
 
         Updates API reference: https://core.telegram.org/bots/api#getting-updates
         """
-        if token != blueprint.bot_dispatcher.token:
-            raise EInvalidToken("Invalid token on incoming update")
         if request.method == "POST":
             # ToDo: start processing in a separate thread
             try:

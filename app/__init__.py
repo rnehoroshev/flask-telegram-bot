@@ -93,7 +93,10 @@ def create_app(config_class: Type = Config) -> BotApp:
     from app.bot import __name__ as bot_package_name  # pylint: disable=import-outside-toplevel
 
     bot_blueprint = TelegramBotBlueprint(
-        app.bot_dispatcher, f"bot{app.bot_dispatcher.user_id}", bot_package_name
+        app.bot_dispatcher,
+        f"bot{app.bot_dispatcher.user_id}",
+        bot_package_name,
+        url_prefix=f"/bot{app.bot_dispatcher.token}",
     )
     app.register_blueprint(bot_blueprint)
 
