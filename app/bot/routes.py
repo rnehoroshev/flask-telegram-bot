@@ -19,7 +19,7 @@
 import json
 from typing import TYPE_CHECKING, Optional
 
-from flask import Response, current_app, request
+from flask import Response, current_app, jsonify, request
 
 from .exceptions import EInvalidUpdateFormat
 from .helpers import default_ok_response, error_response
@@ -87,3 +87,8 @@ def register_routes(blueprint: "TelegramBotBlueprint"):
                     f"update {update_id}"
                 )
         return default_ok_response()
+
+    @blueprint.route("/about")
+    def about() -> Response:  # pylint: disable=unused-variable
+        """Return information about the bot"""
+        return jsonify(blueprint.bot_dispatcher.invoke_request("getMe"))
