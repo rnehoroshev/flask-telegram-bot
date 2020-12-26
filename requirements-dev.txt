@@ -7,7 +7,7 @@ Flask
 Flask-Mail
 Flask-Migrate
 Flask-SQLAlchemy
-flask_sqlalchemy-stubs
+./vendor/flask-sqlalchemy-stubs
 isort
 mypy==0.790
 pre-commit

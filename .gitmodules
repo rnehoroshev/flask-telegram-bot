@@ -1,0 +1,3 @@
+[submodule "vendor/flask-sqlalchemy-stubs"]
+	path = vendor/flask-sqlalchemy-stubs
+	url = https://github.com/rnehoroshev/flask-sqlalchemy-stubs.git
