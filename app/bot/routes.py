@@ -17,15 +17,18 @@
 # limitations under the License.
 """Bot web application endpoints"""
 import json
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from flask import Response, current_app, request
 
-from .exceptions import EInvalidToken, EInvalidUpdateFormat
+from .exceptions import EInvalidUpdateFormat
 from .helpers import default_ok_response, error_response
 
+if TYPE_CHECKING:
+    from . import TelegramBotBlueprint
 
-def register_routes(blueprint):
+
+def register_routes(blueprint: "TelegramBotBlueprint"):
     """Register routes within the blueprint"""
 
     @blueprint.route("/receive_update", methods=["GET", "POST"])
