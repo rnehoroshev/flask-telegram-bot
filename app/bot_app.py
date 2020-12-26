@@ -16,8 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Custom Flask application"""
-from typing import Optional
-
 from flask import Flask
 from redis import Redis
 from rq import Queue
@@ -32,6 +30,6 @@ class BotApp(Flask):
         super().__init__(*args, **kwargs)
 
         # Application-specific fields and methods
-        self.bot_dispatcher: Optional[BotDispatcher] = None
-        self.redis: Optional[Redis] = None
-        self.task_queue: Optional[Queue] = None
+        self.bot_dispatcher: BotDispatcher
+        self.redis: Redis
+        self.task_queue: Queue
