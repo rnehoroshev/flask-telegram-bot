@@ -2,7 +2,7 @@
 max-line-length = 99
 
 [tool.pylint.MASTER]
-load-plugins = 'pylintplugins'
+load-plugins = 'pylintplugins,pylint_flask_sqlalchemy'
 
 [tool.pylint.LOGGING]
 logging-format-style = 'old'
