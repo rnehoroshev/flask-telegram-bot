@@ -189,6 +189,38 @@ def enable_file_logging(
 def register_shell_context(app: BotApp) -> None:
     """Register app shell context"""
 
+    # pylint: disable=import-outside-toplevel
+    from app.models.bot_api import (
+        BotAdmin,
+        BotAdminChat,
+        BotCommand,
+        BotForwardChat,
+        BotReplyText,
+        BotSubscriber,
+        TelegramBot,
+        TelegramChat,
+        TelegramChatType,
+        TelegramMessage,
+        TelegramMessageEntity,
+        TelegramUser,
+    )
+
     @app.shell_context_processor
     def make_shell_context():  # pylint: disable=unused-variable
-        return {"app": app, "db": db, "bot": app.bot_dispatcher}
+        return {
+            "app": app,
+            "db": db,
+            "bot": app.bot_dispatcher,
+            "TelegramBot": TelegramBot,
+            "TelegramUser": TelegramUser,
+            "TelegramChat": TelegramChat,
+            "TelegramChatType": TelegramChatType,
+            "BotAdmin": BotAdmin,
+            "BotAdminChat": BotAdminChat,
+            "BotCommand": BotCommand,
+            "BotForwardChat": BotForwardChat,
+            "BotReplyText": BotReplyText,
+            "BotSubscriber": BotSubscriber,
+            "TelegramMessage": TelegramMessage,
+            "TelegramMessageEntity": TelegramMessageEntity,
+        }

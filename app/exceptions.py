@@ -20,3 +20,11 @@
 
 class ENoBotConfigured(Exception):
     """No bot configured"""
+
+
+class EInappropriateChatType(Exception):
+    """Inappropriate chat type"""
+
+
+class EInvalidChatType(Exception):
+    """Inappropriate chat type"""

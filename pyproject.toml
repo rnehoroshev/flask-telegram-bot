@@ -7,6 +7,32 @@ load-plugins = 'pylintplugins,pylint_flask_sqlalchemy'
 [tool.pylint.LOGGING]
 logging-format-style = 'old'
 
+[tool.pylint.MESSAGES_CONTROL]
+disable='cyclic-import'
+
+[tool.pylint.SIMILARITIES]
+# When defining SQLA model, there are many cases of similar code blocks, e.g.
+# when describing foreign key fields and references. With forced formatting
+# such field descriptions can span many lines.
+# Pylint can't disable duplicate code checks on a per-line or per-module basis
+# (see open issue "The duplicate-code (R0801) can't be disabled #214" -
+# https://github.com/PyCQA/pylint/issues/214). One solution to make pre-commit
+# hooks to pass is to loosen an application-wide configuration.
+# Not an ideal solution.
+#
+# Minimum lines number of a similarity.
+min-similarity-lines=8
+#
+# Ignore comments when computing similarities.
+ignore-comments=true
+#
+# Ignore docstrings when computing similarities.
+ignore-docstrings=true
+#
+# Ignore imports when computing similarities.
+ignore-imports=false
+
+
 [tool.black]
 target-version = ['py38']
 line-length = 99
