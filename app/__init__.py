@@ -21,13 +21,14 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler, SMTPHandler
 from pathlib import Path
-from typing import Optional, Type, Union
+from typing import Optional, Sequence, Type, Union
 
 import rq
 from flask import Flask
 from flask import logging as flask_logging
 from redis import Redis
 
+from app.bot_handlers import register_handlers
 from common import PathUtils
 from common.db import db, migrate
 from common.logging import RelativePathsFormatter
@@ -130,6 +131,8 @@ def create_app(config_class: Type = Config) -> BotApp:
         else:
             app.logger.info(f"{app.config['BOT_NAME']} restarted in '{basedir}'")
 
+    register_bot_handlers(app)
+
     return app
 
 
@@ -184,6 +187,28 @@ def enable_file_logging(
         log_level or logging.getLevelName(app.config["LOG_LEVEL"]) or logging.INFO
     )
     app.logger.addHandler(file_handler)
+
+
+def register_bot_handlers(app: BotApp) -> None:
+    """Register configured bot update handlers within the app's bot dispatcher"""
+    try:
+        if isinstance(app.config["BOT_HANDLERS"], str):
+            bot_update_handlers: Sequence[str] = app.config["BOT_HANDLERS"].split(",")
+            bot_update_handlers = register_handlers(app.bot_dispatcher, bot_update_handlers)
+        else:
+            bot_update_handlers = []
+
+        if not bot_update_handlers:
+            app.logger.warn("No valid bot modules found")
+        else:
+            app.logger.info(
+                "The following bot modules registered: %s", ",".join(bot_update_handlers)
+            )
+    except Exception as exc:
+        app.logger.exception(
+            f"An exception {type(exc).__name__} occurred while registering bot handler modules"
+        )
+        raise exc
 
 
 def register_shell_context(app: BotApp) -> None:

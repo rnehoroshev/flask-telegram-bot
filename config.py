@@ -72,6 +72,9 @@ class Config:  # pylint: disable=too-few-public-methods
     # Bot name (for referring to in logs)
     BOT_NAME = os.environ.get("BOT_NAME") or "Telegram bot"
 
+    # Incoming update handlers - python modules implementing the bot logic
+    BOT_HANDLERS = os.environ.get("BOT_HANDLERS")
+
     # RQ config
     REDIS_URL = os.environ.get("BOT_REDIS_URL") or "redis://"
     RQ_NAME = os.environ.get("BOT_RQ_NAME") or "bot-tasks"

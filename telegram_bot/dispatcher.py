@@ -17,7 +17,7 @@
 # limitations under the License.
 """Telegram bot dispatcher encapsulates methods for communicating with the Telegram Bot API"""
 import json
-from typing import Any, Callable, ClassVar, List, Union
+from typing import Any, Callable, ClassVar, List, Optional, Union
 
 import requests
 
@@ -37,8 +37,8 @@ class BotDispatcher:
         return cls._bots.get(token, cls(token))
 
     def __init__(self, token: str):
-        self.token = token
-        self.update_handlers: List = []
+        self.token: str = token
+        self.update_handlers: List[Callable[[BotDispatcher, dict], Any]] = []
         BotDispatcher._bots[token] = self
 
     @property
@@ -66,7 +66,7 @@ class BotDispatcher:
             raise ETelegramAPIError("Error parsing API response", r.text) from exc
         return d
 
-    def send_message(self, chat_id: int, text: str, **kwargs) -> dict:
+    def send_message(self, chat_id: int, text: Optional[str], **kwargs) -> dict:
         """Sends a message to the specified chat
 
         All arbitrary kwargs will be passed to API call and
@@ -78,15 +78,16 @@ class BotDispatcher:
     def process_update(self, data: dict) -> dict:
         """Processes an incoming bot update by calling all the update handlers
 
-        An update handler is a callable that accepts an update object (a :class:`dict` instance)
-        and is expected to return either a dictionary with "ok" key, or an arbitrary value that
-        will be treated as a boolean. If said value evaluates to False, further processing of
-        update is stopped, otherwise the next handler is called. The handlers are called in the
-        order in which they were added using the :meth:`BotDispatcher.receive_update` decorator.
+        An update handler is a callable that accepts a bot dispatcher and an update object
+        (a :class:`dict` instance), and is expected to return either a dictionary with "ok"
+        key, or an arbitrary value that will be treated as a boolean. If said value evaluates
+        to False, further processing of update is stopped, otherwise the next handler is called.
+        The handlers are called in the order in which they were added using the
+        :meth:`BotDispatcher.receive_update` decorator.
         """
         result = dict()
         for f in self.update_handlers:
-            f_result: Any = f(data)
+            f_result: Any = f(self, data)
             result[".".join((f.__module__, f.__qualname__))] = f_result
             if not f_result or (isinstance(f_result, dict) and f_result["ok"] is not True):
                 break
@@ -96,7 +97,7 @@ class BotDispatcher:
     def receive_update(self) -> Callable[[Callable], None]:
         """Decorator that subscribes a decorated function to receiving incoming bot updates"""
 
-        def decorator(f: Callable) -> None:
+        def decorator(f: Callable[[BotDispatcher, dict], Any]) -> None:
             self.update_handlers.append(f)
 
         return decorator
