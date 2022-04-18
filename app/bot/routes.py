@@ -50,6 +50,8 @@ def register_routes(blueprint: "TelegramBotBlueprint"):
             try:
                 try:
                     json_payload = json.dumps(request.json, ensure_ascii=False).encode("utf8")
+                    if TYPE_CHECKING:
+                        assert isinstance(request.json, dict)
                     update_id = request.json["update_id"]
                 except (json.JSONDecodeError, KeyError) as exc:
                     response_mimetype: Optional[str] = request.content_type

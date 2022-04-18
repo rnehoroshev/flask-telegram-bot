@@ -34,7 +34,7 @@ def register(linter: Any) -> None:
 def transform(fnc: scoped_nodes.FunctionDef) -> None:
     """Transformation for FunctionDef node.
 
-    Prevents false positives when accessing members of the (flask)app's logger propertys
+    Prevents false positives when accessing members of the (flask)app's logger properties
     """
     if fnc.name == "logger":
         for prop in ["debug", "info", "warning", "error", "handlers", "addHandler", "setLevel"]:

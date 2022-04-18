@@ -87,7 +87,7 @@ def create_app(config_class: Type = Config) -> BotApp:
         if PathUtils.is_path_exists_or_creatable(updates_dump_dir):
             Path(updates_dump_dir).mkdir(parents=True, exist_ok=True)
         else:
-            app.logger.warn(
+            app.logger.warning(
                 f"Unable to create path {updates_dump_dir}. Update dumps will not be saved"
             )
             dump_updates = False
